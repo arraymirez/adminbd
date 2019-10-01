@@ -1,11 +1,13 @@
---CREATE DATABASE restaurante2;
---USE restaurante2;
+--CREATE DATABASE restaurante;
+--USE restaurante;
+
 
 CREATE TABLE tiposEmpleado(
 idTipo INT IDENTITY PRIMARY KEY,
 puesto VARCHAR(100),
 descripcion VARCHAR(100)
 )
+
 
 CREATE TABLE empleados(
 idEmpleado INT IDENTITY PRIMARY KEY,
@@ -15,6 +17,7 @@ horario INT,
 salario DECIMAL(12,2),
 tipoEmpleado INT FOREIGN KEY(tipoEmpleado) REFERENCES tiposEmpleado(idTipo)
 )
+
 
 CREATE TABLE mesas(
 idMesa INT IDENTITY PRIMARY KEY,
@@ -73,22 +76,3 @@ cantidad INT,
 costo DECIMAL(12,2),
 
 )
---Transaccion que inserta 5 registros a la tabla tiposEmpleado
---TiposEmpleado son los roles de los empleados del restaurante
---@@Error ->funcion que retorna un numero de error en la transaccion
-Begin transaction InsertTipoEmpleado
-	insert into tiposEmpleado(puesto,descripcion) values ('Mesero','Atiende ordenes');
-	insert into tiposEmpleado(puesto,descripcion) values ('Cajero','Cobra ordenes');
-	insert into tiposEmpleado(puesto,descripcion) values ('Jefe de Meseros','Administra Meseros');
-	insert into tiposEmpleado(puesto,descripcion) values ('Gerente','Coordinador del local ');
-	insert into tiposEmpleado(puesto,descripcion) values ('Cocinero','Prepara los alimentos');
-	if @@ERROR <> 0
-		Begin
-			Rollback Transaction InsertTipoEmpleado
-			Print 'Error';
-		End
-	Else 
-		Begin
-			Commit Transaction InsertTipoEmpleado
-			Print 'Inserted!';
-		End
