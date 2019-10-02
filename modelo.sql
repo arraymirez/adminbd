@@ -1,5 +1,5 @@
---CREATE DATABASE restaurante2;
---USE restaurante2;
+ CREATE DATABASE restaurante2;
+ USE restaurante2;
 
 CREATE TABLE tiposEmpleado(
 idTipo INT IDENTITY PRIMARY KEY,
@@ -92,3 +92,19 @@ Begin transaction InsertTipoEmpleado
 			Commit Transaction InsertTipoEmpleado
 			Print 'Inserted!';
 		End
+
+
+
+
+
+--Transaccion que genera un reporte de ventas del ultimo mes de ventas
+Begin transaction ReporteVentas
+	
+	USE restaurante2;
+
+	SELECT sum(total) AS Total_Ventas  FROM ordenes WHERE
+		DATEPART(MONTH,CONVERT(DATE,HORA)) = DATEPART(MONTH,CURRENT_TIMESTAMP)
+		GROUP BY hora ORDER BY HORA
+
+Commit Transaction ReporteVentas
+
