@@ -1,6 +1,5 @@
---CREATE DATABASE restaurante;
---USE restaurante;
-
+ CREATE DATABASE restaurante2;
+ USE restaurante2;
 
 CREATE TABLE tiposEmpleado(
 idTipo INT IDENTITY PRIMARY KEY,
@@ -72,7 +71,41 @@ CREATE TABLE ordenesDetalle(
 idDetalle INT IDENTITY PRIMARY KEY,
 idOrden INT FOREIGN KEY (idOrden) REFERENCES ordenes(noOrden),
 idPlatillo VARCHAR(10) FOREIGN KEY (idPlatillo) REFERENCES platillos(idPlatillo),
-cantidad INT, 
+cantidad INT,
 costo DECIMAL(12,2),
 
 )
+--Transaccion que inserta 5 registros a la tabla tiposEmpleado
+--TiposEmpleado son los roles de los empleados del restaurante
+--@@Error ->funcion que retorna un numero de error en la transaccion
+Begin transaction InsertTipoEmpleado
+	insert into tiposEmpleado(puesto,descripcion) values ('Mesero','Atiende ordenes');
+	insert into tiposEmpleado(puesto,descripcion) values ('Cajero','Cobra ordenes');
+	insert into tiposEmpleado(puesto,descripcion) values ('Jefe de Meseros','Administra Meseros');
+	insert into tiposEmpleado(puesto,descripcion) values ('Gerente','Coordinador del local ');
+	insert into tiposEmpleado(puesto,descripcion) values ('Cocinero','Prepara los alimentos');
+	if @@ERROR <> 0
+		Begin
+			Rollback Transaction InsertTipoEmpleado
+			Print 'Error';
+		End
+	Else
+		Begin
+			Commit Transaction InsertTipoEmpleado
+			Print 'Inserted!';
+		End
+
+
+
+
+
+--Transaccion que genera un reporte de ventas del ultimo mes de ventas
+Begin transaction ReporteVentas
+
+	USE restaurante2;
+
+	SELECT sum(total) AS Total_Ventas  FROM ordenes WHERE
+		DATEPART(MONTH,CONVERT(DATE,HORA)) = DATEPART(MONTH,CURRENT_TIMESTAMP)
+		GROUP BY hora ORDER BY HORA
+
+Commit Transaction ReporteVentas
