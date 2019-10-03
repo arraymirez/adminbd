@@ -1,5 +1,5 @@
---CREATE DATABASE Ejercicio1_abogados;
---USE Ejercicio1_abogados;
+CREATE DATABASE Ejercicio1_abogados;
+USE Ejercicio1_abogados;
 
 
 CREATE TABLE Clientes(
