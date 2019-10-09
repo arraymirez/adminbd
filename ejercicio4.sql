@@ -88,9 +88,7 @@ numero  INT FOREIGN KEY (numero) REFERENCES cinta(numero)
 
 
 CREATE TABLE  lista_espera(
-
 id INT IDENTITY PRIMARY KEY,
 codigo  INT FOREIGN KEY (codigo) REFERENCES socios(codigo),
 id_pelicula  INT FOREIGN KEY (id_pelicula) REFERENCES pelicula(id_pelicula)
-
 )
