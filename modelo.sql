@@ -1,5 +1,5 @@
- CREATE DATABASE restaurante2;
- USE restaurante2;
+ CREATE DATABASE restaurante;
+ USE restaurante;
 
 CREATE TABLE tiposEmpleado(
 idTipo INT IDENTITY PRIMARY KEY,
@@ -14,6 +14,7 @@ nombre VARCHAR(100),
 edad INT,
 horario INT,
 salario DECIMAL(12,2),
+bono DECIMAL(12,2),
 tipoEmpleado INT FOREIGN KEY(tipoEmpleado) REFERENCES tiposEmpleado(idTipo)
 )
 
@@ -72,8 +73,7 @@ idDetalle INT IDENTITY PRIMARY KEY,
 idOrden INT FOREIGN KEY (idOrden) REFERENCES ordenes(noOrden),
 idPlatillo VARCHAR(10) FOREIGN KEY (idPlatillo) REFERENCES platillos(idPlatillo),
 cantidad INT,
-costo DECIMAL(12,2),
-
+costo DECIMAL(12,2)
 )
 --Transaccion que inserta 5 registros a la tabla tiposEmpleado
 --TiposEmpleado son los roles de los empleados del restaurante
@@ -102,10 +102,34 @@ Begin transaction InsertTipoEmpleado
 --Transaccion que genera un reporte de ventas del ultimo mes de ventas
 Begin transaction ReporteVentas
 
-	USE restaurante2;
+	USE restaurante;
 
 	SELECT sum(total) AS Total_Ventas  FROM ordenes WHERE
 		DATEPART(MONTH,CONVERT(DATE,HORA)) = DATEPART(MONTH,CURRENT_TIMESTAMP)
 		GROUP BY hora ORDER BY HORA
 
 Commit Transaction ReporteVentas
+
+
+
+
+/*
+Transaccion que evalua las ventas realizadas por un mesero 
+y en base a ellas calcular un bono para el empleado
+*/
+BEGIN TRANSACTION verificarBono
+
+UPDATE empleados SET bono = 200 
+	WHERE idEmpleado IN ( SELECT mesero FROM ordenes WHERE DATEPART(DAY,hora) = DATEPART(DAY,GETDATE())
+						  GROUP BY mesero HAVING COUNT(noOrden)>20 
+						)
+IF @@ERROR <> 0
+		Begin
+			Rollback Transaction verificarBono
+			Print 'Error en la operacion: cambios descartados.';
+		End
+	Else
+		Begin
+			Commit Transaction verificarBono
+			Print 'Calculo exitoso';
+		End
