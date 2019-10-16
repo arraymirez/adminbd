@@ -2,3 +2,6 @@ documentar el proceso en el que el gestor de la base de datos relacional
 se configura en modo transaccional.
 
 para el viernes 4
+
+
+investigar las diferencias entre una base de datos y un almacen de datos
