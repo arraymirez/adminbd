@@ -228,3 +228,49 @@ IF @@ERROR <> 0
 			Commit Transaction verificarBono
 			Print 'Calculo exitoso';
 		End
+
+
+
+
+
+/*CONCURRENCIA------*/
+/*
+	Realiza el descuento de los ingredientes al realizar una venta con la informacion de la ultima venta realizada.
+*/
+USE restaurante
+go
+
+Set Transaction Isolation level read committed
+
+--OBTENEMOS LOS DETALLES DE LA ULTIMA VENTA GENERADA
+Begin Tran ActualizarInventario
+
+/*variable temporal para almacenar los platillos de la ultima orden*/
+DECLARE @VentaPlatillo TABLE
+(
+  cantidad int, 
+  idPlatillo varchar(10)
+)
+	/*Guardamos en la tabla t*/
+	INSERT INTO @VentaPlatillo SELECT  cantidad, idPlatillo FROM ordenesDetalle WHERE idOrden = (SELECT top 1 noOrden FROM ordenes order by noOrden desc )
+
+
+	UPDATE ingredientes SET existencias = (existencias - A.cantidad * receta_ingredientes.cantidad)  FROM @VentaPlatillo as A
+	INNER JOIN recetas ON recetas.idPlatillo = A.idPlatillo
+	INNER JOIN receta_ingredientes ON receta_ingredientes.idReceta = recetas.idPlatillo
+	WHERE ingredientes.idIngrediente = receta_ingredientes.idIngrediente										
+
+--verificamos los errores-
+IF @@ERROR <> 0
+	Begin
+		Rollback Transaction ActualizarInventario
+		Print 'Error en la operacion: cambios descartados.';
+	End
+Else
+	Begin
+		Commit Transaction ActualizarInventario
+		Print 'Operacion completada';
+	End
+---FIN De la transaccion --
+
+
